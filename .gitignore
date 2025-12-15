@@ -1,0 +1,9 @@
+# Ignore any temporary files
+*.tmp
+*.log
+*.swp
+*~
+
+# Don't ignore the breach folders and flags
+!*/
+
