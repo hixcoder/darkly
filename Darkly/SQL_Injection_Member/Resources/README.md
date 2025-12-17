@@ -34,10 +34,6 @@ I navigated to the **Members** search page (`index.php?page=member`). I noticed 
 
 The vulnerability exists because the code directly concatenates the user input `$id` into the SQL query string.
 
-## The Fix (Type Casting)
-
-Since the `id` parameter is supposed to be a number, the simplest solution is to force PHP to treat the input as an integer. This instantly neutralizes any SQL commands because words like "UNION" become "0".
-
 **Vulnerable Code:**
 
 ```php
@@ -45,3 +41,7 @@ $id = $_GET['id'];
 // $id contains "1 UNION SELECT..."
 $query = "SELECT * FROM users WHERE id = $id";
 ```
+
+### The Fix (Type Casting)
+
+Since the `id` parameter is supposed to be a number, the simplest solution is to force PHP to treat the input as an integer. This instantly neutralizes any SQL commands because words like "UNION" become "0".
