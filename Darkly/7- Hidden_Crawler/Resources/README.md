@@ -4,7 +4,7 @@
 
 The investigation began with the **`robots.txt`** file (`/robots.txt`), which explicitly disallowed a directory named **`/.hidden`**.
 
-Upon visiting `http://localhost:8080/.hidden`, I discovered that the server had **Directory Listing** enabled. This revealed a massive, deep structure of nested folders. Browsing a few manually showed that each folder contained a `README` file with a decoy message (e.g., _"Demande ton chemin à ton voisin"_).
+Upon visiting `http://localhost:8080/.hidden/`, I discovered that the server had **Directory Listing** enabled. This revealed a massive, deep structure of nested folders. Browsing a few manually showed that each folder contained a `README` file with a decoy message (e.g., _"Demande ton chemin à ton voisin"_).
 
 I realized that the flag was hidden in one specific `README` file among thousands of decoys. Since manual verification was impossible, I automated the process.
 
