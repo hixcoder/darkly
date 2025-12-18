@@ -30,6 +30,15 @@ I suspected that the input was not being validated, allowing me to ask the serve
 
 The vulnerability exists because the application accepts the user's input string and uses it directly as a filename.
 
+**Vulnerable Code:**
+
+```php
+$page = $_GET['page']; // User sends "../../etc/passwd"
+include($page);        // Server executes: include("../../etc/passwd")
+```
+
+### The Fix
+
 Strictly define exactly which pages are allowed to be loaded.
 code PHP
 
@@ -42,11 +51,4 @@ if (in_array($\_GET['page'], $allowed_pages)) {
 // Show error page
 }
 
-```
-
-**Vulnerable Code:**
-
-```php
-$page = $_GET['page']; // User sends "../../etc/passwd"
-include($page);        // Server executes: include("../../etc/passwd")
 ```
