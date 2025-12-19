@@ -1,4 +1,4 @@
-# XSS_Media - Documentation
+# Reflected_XSS_Media - Documentation
 
 ## How I Found It
 

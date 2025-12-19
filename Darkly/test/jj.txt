@@ -1,0 +1,11 @@
+						<li><a href="?page=survey">Survey</a></li>
+						<li><a href="?page=member">Members</a></li>
+					<li><a href="?page=signin" class="button special big">Sign in</a></li>
+	<p><br /><br /><br/><a href="?page=media&src=nsa"><img src="images/nsa_prism.jpg" alt="" /></a></p>
+							<li><a href="?page=upload" class="button special big">Add image</a></li>
+							<li><a href="?page=searchimg" class="button big">Search image</a></li>
+							<li><a href="?page=feedback" class="button special big">leave a Feedback</a></li>
+						<li><a href="index.php?page=redirect&site=facebook" class="icon fa-facebook"></a></li>
+						<li><a href="index.php?page=redirect&site=twitter" class="icon fa-twitter"></a></li>
+						<li><a href="index.php?page=redirect&site=instagram" class="icon fa-instagram"></a></li>
+						<a href="?page=b7e44c7a40c5f80139f0a50f3650fb2bd8d00b0d24667c4c2ca32c88e13b758f"><li>&copy; BornToSec</li></a>
