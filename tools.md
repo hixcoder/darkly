@@ -8,3 +8,7 @@ tools learned:
 
 1- to learn about sql: https://sqlzoo.net/wiki/SELECT_basics
 2- to learn sql injection: https://portswigger.net/web-security/sql-injection
+
+## learning:
+
+https://www.youtube.com/playlist?list=PLv7cogHXoVhXvHPzIl1dWtBiYUAL8baHj
