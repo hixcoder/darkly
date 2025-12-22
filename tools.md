@@ -11,4 +11,14 @@ tools learned:
 
 ## learning:
 
-https://www.youtube.com/playlist?list=PLv7cogHXoVhXvHPzIl1dWtBiYUAL8baHj
+### https://www.youtube.com/playlist?list=PLv7cogHXoVhXvHPzIl1dWtBiYUAL8baHj
+
+========================
+1- for check email leak:
+https://haveibeenpwned.com/
+
+# https://www.shodan.io/search?query=mongodb&page=2
+
+### https://portswigger.net/web-security/learning-paths/server-side-vulnerabilities-apprentice
+
+================
